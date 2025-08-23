@@ -193,8 +193,8 @@ You can test your storage setup by:
 ### Environment Variables Check:
 Make sure your `.env` file has:
 ```env
-SUPABASE_URL=https://lwynjcbigtjflgdqwbqt.supabase.co
+SUPABASE_URL=https://your_supabase_url
 SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-SUPABASE_STORAGE_BUCKET=krishoker_ponno_image
+SUPABASE_STORAGE_BUCKET=your_supabase_storage_bucket
 ```
