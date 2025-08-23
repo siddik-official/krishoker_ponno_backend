@@ -185,7 +185,7 @@ npm audit
 ### Environment Variables
 Your `.env` file contains real credentials - keep it secure:
 ```env
-SUPABASE_URL=https://lwynjcbigtjflgdqwbqt.supabase.co
+SUPABASE_URL=https://your_supabase_url
 SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_key  # Keep private!
 ```
