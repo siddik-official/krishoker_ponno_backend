@@ -63,6 +63,76 @@ app.get('/health', (req, res) => {
     });
 });
 
+// Supabase connection test endpoint
+app.get('/test-supabase', async (req, res) => {
+    try {
+        const { supabase, supabaseAdmin } = require('./config/supabase');
+        
+        // Test 1: Simple connection test using districts (no RLS issues)
+        const { data: districts, error: districtsError } = await supabaseAdmin
+            .from('districts')
+            .select('id, name')
+            .limit(3);
+
+        if (districtsError) {
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to connect to Supabase',
+                error: districtsError.message,
+                hint: 'Make sure you have run the database schema.sql in Supabase SQL Editor'
+            });
+        }
+
+        // Test 2: Check if tables exist
+        const { data: tables, error: tablesError } = await supabaseAdmin
+            .rpc('get_admin_overview_stats')
+            .single();
+
+        // Test 3: Simple count queries
+        const { count: districtCount, error: countError } = await supabaseAdmin
+            .from('districts')
+            .select('*', { count: 'exact', head: true });
+
+        res.status(200).json({
+            success: true,
+            message: 'Supabase connection successful!',
+            tests: {
+                basic_query: {
+                    success: !districtsError,
+                    data: districts,
+                    count: districts?.length || 0,
+                    message: 'Retrieved districts from database'
+                },
+                table_count: {
+                    success: !countError,
+                    district_count: districtCount || 0,
+                    message: 'Table counting works'
+                },
+                custom_functions: {
+                    success: !tablesError,
+                    data: tables,
+                    message: tablesError ? `Function error: ${tablesError.message}` : 'Custom functions working'
+                }
+            },
+            environment: {
+                supabase_url: process.env.SUPABASE_URL ? 'Set' : 'Missing',
+                supabase_anon_key: process.env.SUPABASE_ANON_KEY ? 'Set' : 'Missing',
+                supabase_service_key: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Missing'
+            },
+            timestamp: new Date().toISOString()
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Supabase connection test failed',
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
 // API routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', authenticateUser, userRoutes);
